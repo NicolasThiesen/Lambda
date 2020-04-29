@@ -2,10 +2,9 @@ const AWS = require('aws-sdk');
 
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
-exports.handler = async (event) => {
+exports.handler = async (event, context, callback) => {
     
     const requestBody = JSON.parse(event.body);
-    console.log(requestBody)
     if (requestBody.codigo && requestBody.time) {
         
         const codigo = requestBody.codigo;
@@ -13,8 +12,8 @@ exports.handler = async (event) => {
         var params = {
             TableName: "codigos",
             Item: {
-                "date": Date.now(),
-                "codigo": "ASDF"
+                "date": { N : Date.now()},
+                "codigo": { S : "saddf@#E#$FGsdf242wf"}
             }
         }
         
@@ -43,7 +42,7 @@ exports.handler = async (event) => {
         return {
             'statusCode': 500,
             'headers': { 'Content-Type': 'application/json' },
-            'body': JSON.stringify({"message":"chaves inválidas. Tente ver se você está colocando devidamente 'chave' e 'time' como as chaves do json body "})
+            'body': JSON.stringify({"message":"chaves inválidas. Tente ver se você está colocando devidamente 'codigo' e 'time' como as chaves do json body "+requestBody})
         }
     }
 }
