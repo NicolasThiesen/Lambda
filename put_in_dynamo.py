@@ -8,16 +8,18 @@ def handler(event, context):
     now = datetime.now()
     now = now.strftime("%m/%d/%Y %H:%M:%S%f")
     data = json.loads(event["body"])
-    if ("codigo" in data) and ("time" in data):
+    if ("game" in data) and ("team" in data):
         dynamodb = boto3.resource('dynamodb')
         table = dynamodb.Table('codigos')
-        codigo = data["codigo"]
-        time = data["time"]
+        game = data["game"]
+        team = data["team"]
+        order = data["order"]
         response = table.put_item(
            Item={
                 "date": now,
-                "codigo": codigo,
-                "time": time
+                "game": game,
+                "team": team,
+                "order": order
             }
         )
         r_status_code = int(response["ResponseMetadata"]["HTTPStatusCode"])
@@ -39,9 +41,5 @@ def handler(event, context):
             'headers': { 'Content-Type': 'application/json' },
             'body': json.dumps({"erro": "Tente ver se você está colocando devidamente 'codigo' e 'time' como as chaves do json body"})
         }
-    
-    
-    
-    
     
     
