@@ -1,11 +1,11 @@
 // Load the AWS SDK for Node.js
-var AWS = require('aws-sdk');
+const AWS = require('aws-sdk');
 // Set the region 
 AWS.config.update({region: 'us-east-1'});
-var docClient = new AWS.DynamoDB.DocumentClient();
-var toPutClient = new AWS.DynamoDB.DocumentClient();
-var gpc = require('generate-pincode')
-
+const docClient = new AWS.DynamoDB.DocumentClient();
+const toPutClient = new AWS.DynamoDB.DocumentClient();
+const gpc = require('generate-pincode')
+const crypto = require("crypto")
 
 exports.handler = async (event) => {
     // TODO implement
@@ -13,10 +13,17 @@ exports.handler = async (event) => {
     const getParams = {
         TableName: "UserPin"
     }
-    const putParams = (pin,username) => {
+    const updateParams = (id,pin) => {
         return{
             TableName: "UserPin",
-            Item:{pin: pin, username: username}
+            Key:{
+                id: id,
+            },
+            UpdateExpression: "set pin = :p",
+            ExpressionAttributeValues:{
+                ":p": pin
+            },
+            ReturnValues:"UPDATED_NEW"
         }
     }
     const promise = docClient.scan(getParams).promise();
@@ -28,12 +35,12 @@ exports.handler = async (event) => {
             dataSearch.push(Object.entries(data[l]));
     }   
     var search=dataSearch.flat(Infinity);
-    while (dataSearch.includes(pin)){
-         pin = gpc(9);
+    while (search.includes(pin) || pin.toString().length != 9){
+         pin = parseInt(gpc(9));
     }
-    let username = body["username"]
+    let id = body["id"]
     let response;
-    await toPutClient.put(putParams(pin,username), function(err, data) {
+    await toPutClient.update(updateParams(id,pin), function(err) {
         if (err) {
             response = {
             statusCode: 400,
@@ -42,7 +49,7 @@ exports.handler = async (event) => {
         } else {
             response = {
             statusCode: 200,
-            body: JSON.stringify('Items inseridos com sucesso'),
+            body: JSON.stringify({pin:pin}),
             };
         }
     }).promise();
