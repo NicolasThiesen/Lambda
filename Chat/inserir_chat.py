@@ -4,7 +4,7 @@ import os
 
 def handler(event,context):
     dynamodb = boto3.resource("dynamodb")
-    if("email_usuario" in event) and ("email_profissional" in event) :
+    if("email_usuario" in event) and ("email_profissional" in event) and ("dados_msg" in event):
         # get the data
         email_usuario = event["email_usuario"]
         email_profissional = event["email_profissional"]
@@ -22,23 +22,22 @@ def handler(event,context):
         )
         if ("Item" in res):
             item = res["Item"]
-            if ("Conversa" in item ):
-                conversa = item["Conversa"]
-                conversa[len(conversa)+1] = dados_msg
-                res = table.update_item(
-                    Key={
-                        "id": id_conversa
-                    },
-                    UpdateExpression="set Conversa=:c",
-                    ExpressionAttributeValues={
-                        ":c": conversa
-                    },
-                    ReturnValues="NONE"
-                )
-                if ( res["ResponseMetadata"]["HTTPStatusCode"] == 200) and ( res["ResponseMetadata"]["HTTPStatusCode"] == 200):
-                    return {"Status": "Mensagem efetuada com sucesso"}
-                else:
-                    return {"erro": "Algo deu errado ao enviar a mensagem"}
+            conversa = item["Conversa"]
+            conversa[str(len(conversa)+1)] = dados_msg
+            res = table.update_item(
+                Key={
+                    "id": id_conversa
+                },
+                UpdateExpression="set Conversa=:c",
+                ExpressionAttributeValues={
+                    ":c": conversa
+                },
+                ReturnValues="NONE"
+            )
+            if ( res["ResponseMetadata"]["HTTPStatusCode"] == 200) and ( res["ResponseMetadata"]["HTTPStatusCode"] == 200):
+                return {"Status": "Mensagem efetuada com sucesso"}
+            else:
+                return {"erro": "Algo deu errado ao enviar a mensagem"}
     else:
         return return_message( "erro", "Por favor verifique se todos os itens 'email_usuario', 'email_profissional', 'dados_msg'", "" )
 

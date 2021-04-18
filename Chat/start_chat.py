@@ -33,10 +33,9 @@ def handler(event,context):
             if(r_status == 200):
                 return return_message("status", "Itens Inseridos com sucesso!", id_conversa )
             else:
-                return return_message("erro", "Ocorreu algum problema ao inserir os item no Banco de dados", "")
+                return return_message("erro", "Ocorreu algum problema ao inserir os items no Banco de dados", "")
     else:
-        return return_message( "erro", "Por favor verifique se todos os itens 'nome', 'email', 'senha', 'pais' e 'idade' estão sendo enviados pelo Json", "" )
-
+        return return_message( "erro", "Por favor verifique se todos os itens 'email_usuario', 'email_profissional' estão sendo passados no json", "" )
 def return_message(mensage_key, mensage, id_conversa):
     if (id_conversa!=""):
         return {mensage_key: mensage,  "id_conversa": id_conversa}
